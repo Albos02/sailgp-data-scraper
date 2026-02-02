@@ -22,7 +22,17 @@ def select_from_list(options, prompt_text, show_count=False):
         length = len(k)
         if show_count and "count" in v:
             # print(f"[{k}] {v['name']} ({v['count']} races)")
-            print(" " * (max_length - length) + "[" + k + "]" + " " + v["name"] + " (" + v["count"] + " " + "races)"
+            print(
+                " " * (max_length - length)
+                + "["
+                + k
+                + "]"
+                + " "
+                + v["name"]
+                + " ("
+                + v["count"]
+                + " "
+                + "races)"
             )
         else:
             # print(f"[{k}]  {v['name']}")
@@ -138,10 +148,11 @@ def main():
         event_city = event_data.get("city", event_data.get("event_name", event_id))
 
         for d_idx, day in enumerate(event_data.get("days", []), 1):
-            date_path = day.get("date_path") or (day.get("date") or "")[:10].replace(
-                "-", ""
-            )
             for race in day.get("races", []):
+                race_start = race.get("start_date_time", race.get("start"))
+                date_path = day.get("date_path") or (
+                    day.get("date") or (race_start[:10] if race_start else "")
+                )[:10].replace("-", "")
                 races_to_download.append(
                     {
                         "event_name": event_name,
@@ -152,9 +163,7 @@ def main():
                         "city": event_id,
                         "day_num": d_idx,
                         "date_path": date_path,
-                        "start_ts": iso_to_unix_ms(
-                            race.get("start_date_time", race.get("start"))
-                        ),
+                        "start_ts": iso_to_unix_ms(race_start),
                         "end_ts": iso_to_unix_ms(
                             race.get("end_date_time", race.get("end"))
                         ),
